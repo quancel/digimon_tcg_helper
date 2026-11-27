@@ -9,13 +9,10 @@ jobs:
     steps:
       - run: |
           UA="digimon-alysion-helper (private deckbuilder)"
-          curl -s -A "$UA" https://alysion.gg/sitemap-0.xml -o sm.xml; wc -c sm.xml
-          grep -o '<loc>[^<]*/cards/[^<]*</loc>' sm.xml | grep -v alt-art | wc -l
-          grep -o '<loc>[^<]*</loc>' sm.xml | sed 's/<[^>]*>//g' | grep -v '/cards/[a-z0-9-]*/[^/]*/$' | head -60
-          curl -s -A "$UA" https://alysion.gg/cards/bd1-002/gemmon/ -o c.html; wc -c c.html
-          echo "=== SCRIPTS"; grep -o '<script[^>]*>' c.html | head -20
-          echo "=== JSON-ish"; grep -o -E '(astro-island|props=|application/json|ld\+json)[^>]{0,300}' c.html | head -5
-          echo "=== MAIN"; python3 -c "
-          s=open('c.html',encoding='utf-8').read(); i=s.find('<main'); print(s[i:i+9000] if i>=0 else s[:9000])"
-          curl -s -A "$UA" -o /dev/null -w "cards.json %{http_code}\n" https://alysion.gg/cards.json
-          curl -s -A "$UA" -o /dev/null -w "api %{http_code}\n" https://alysion.gg/api/cards
+          curl -s -A "$UA" https://alysion.gg/_astro/CardTooltip.astro_astro_type_script_index_0_lang.C2QYX4x9.js -o t.js; wc -c t.js
+          grep -o -E '"[^"]*\.json[^"]*"|fetch\([^)]{0,120}\)|/[a-z_/-]*tip[a-z_/-]*' t.js | sort -u | head -20
+          head -c 1500 t.js; echo
+          curl -s -A "$UA" https://alysion.gg/cards/bt1-010/agumon/ | python3 -c "
+          import sys; s=sys.stdin.read(); i=s.find('detail-art'); print(s[i:i+2500])"
+          curl -s -A "$UA" https://alysion.gg/cards/bd2-005/yukinamon/ | python3 -c "
+          import sys; s=sys.stdin.read(); i=s.find('detail-art'); print(s[i:i+3000])"
