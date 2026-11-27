@@ -1,0 +1,21 @@
+name: Probe alysion.gg
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          UA="digimon-alysion-helper (private deckbuilder)"
+          curl -s -A "$UA" https://alysion.gg/sitemap-0.xml -o sm.xml; wc -c sm.xml
+          grep -o '<loc>[^<]*/cards/[^<]*</loc>' sm.xml | grep -v alt-art | wc -l
+          grep -o '<loc>[^<]*</loc>' sm.xml | sed 's/<[^>]*>//g' | grep -v '/cards/[a-z0-9-]*/[^/]*/$' | head -60
+          curl -s -A "$UA" https://alysion.gg/cards/bd1-002/gemmon/ -o c.html; wc -c c.html
+          echo "=== SCRIPTS"; grep -o '<script[^>]*>' c.html | head -20
+          echo "=== JSON-ish"; grep -o -E '(astro-island|props=|application/json|ld\+json)[^>]{0,300}' c.html | head -5
+          echo "=== MAIN"; python3 -c "
+          s=open('c.html',encoding='utf-8').read(); i=s.find('<main'); print(s[i:i+9000] if i>=0 else s[:9000])"
+          curl -s -A "$UA" -o /dev/null -w "cards.json %{http_code}\n" https://alysion.gg/cards.json
+          curl -s -A "$UA" -o /dev/null -w "api %{http_code}\n" https://alysion.gg/api/cards
