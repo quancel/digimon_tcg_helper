@@ -34,7 +34,9 @@ export interface Card {
   imageUrl: string // linked, not stored in the repo
   altArts?: string[]
   rulings?: { id: string; q: string; a: string; date?: string }[]
-  source: 'official' | 'alysion.gg'
+  source: 'official' | 'alysion.gg' | 'official+alysion.gg'
+  pack?: string
+  sourceUrl?: string
 }
 
 /**

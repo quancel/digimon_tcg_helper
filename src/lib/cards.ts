@@ -1,12 +1,28 @@
 import { useEffect, useState } from 'react'
 import type { Card } from '../types/card'
 
+const SUPABASE_URL: string | undefined = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_KEY: string | undefined = import.meta.env.VITE_SUPABASE_ANON_KEY
+
 export function useCards() {
   const [cards, setCards] = useState<Card[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/cards.json`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+    const fromRepo = () =>
+      fetch(`${import.meta.env.BASE_URL}data/cards.json`).then((r) =>
+        r.ok ? (r.json() as Promise<Card[]>) : Promise.reject(new Error(`HTTP ${r.status}`)),
+      )
+    // Full Alysion pool from Supabase when configured, otherwise the official list in the repo.
+    const fromSupabase = async (): Promise<Card[]> => {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/cards?select=data&order=id`, {
+        headers: { apikey: SUPABASE_KEY!, authorization: `Bearer ${SUPABASE_KEY}` },
+      })
+      if (!r.ok) throw new Error(`Supabase HTTP ${r.status}`)
+      const rows: { data: Card }[] = await r.json()
+      if (rows.length === 0) throw new Error('Supabase table is empty')
+      return rows.map((x) => x.data)
+    }
+    ;(SUPABASE_URL && SUPABASE_KEY ? fromSupabase().catch(fromRepo) : fromRepo())
       .then(setCards)
       .catch((e) => setError(String(e)))
   }, [])
