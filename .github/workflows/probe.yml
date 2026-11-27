@@ -1,0 +1,22 @@
+name: Probe official card list
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          UA="digimon-alysion-helper (private fan tool)"
+          curl -s -A "$UA" https://world.digimoncard.com/robots.txt | head -40
+          echo "=== LIST PAGE"
+          curl -s -A "$UA" "https://world.digimoncard.com/cards/?search=true&category=522125" -o list.html
+          wc -c list.html
+          grep -o 'category=[0-9]*[^<]*<' list.html | sort -u | head -150
+          echo "=== FIRST ENTRY"
+          python3 - <<'PY'
+          s=open('list.html',encoding='utf-8').read()
+          i=s.find('ST25-02')
+          print(s[max(0,i-3000):i+6000])
+          PY
