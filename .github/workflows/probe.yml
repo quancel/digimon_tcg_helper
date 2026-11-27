@@ -3,20 +3,19 @@ on:
   push:
     branches: ['claude/**']
     paths: ['.github/workflows/probe.yml']
+permissions:
+  contents: write
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
           UA="digimon-alysion-helper (private fan tool)"
-          curl -s -A "$UA" https://world.digimoncard.com/robots.txt | head -40
-          echo "=== LIST PAGE"
-          curl -s -A "$UA" "https://world.digimoncard.com/cards/?search=true&category=522125" -o list.html
-          wc -c list.html
-          grep -o 'category=[0-9]*[^<]*<' list.html | sort -u | head -150
-          echo "=== FIRST ENTRY"
-          python3 - <<'PY'
-          s=open('list.html',encoding='utf-8').read()
-          i=s.find('ST25-02')
-          print(s[max(0,i-3000):i+6000])
-          PY
+          mkdir -p fixtures
+          curl -s -A "$UA" "https://world.digimoncard.com/cards/?search=true&category=522125" -o fixtures/st25.html
+          curl -s -A "$UA" "https://world.digimoncard.com/cards/" -o fixtures/index.html
+          grep -n -i -E 'select|option|name="category"|<form' fixtures/index.html | head -200
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fixtures && git commit -m "Add probe fixtures" && git push
