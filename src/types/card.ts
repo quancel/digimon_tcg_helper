@@ -1,6 +1,6 @@
 /**
  * Full card record as stored in public/data/cards.json.
- * Filled by the import script (scripts/), source still to be decided.
+ * Filled by scripts/import-official.mjs from the official Bandai card list.
  */
 export type CardColor = 'red' | 'blue' | 'yellow' | 'green' | 'black' | 'purple' | 'white'
 export type CardKind = 'digi-egg' | 'digimon' | 'tamer' | 'option' | 'digimon-option'
