@@ -29,6 +29,7 @@ jobs:
           GITHUB_PAGES: 'true'
           VITE_ANALYZE_URL: ${{ vars.VITE_ANALYZE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
