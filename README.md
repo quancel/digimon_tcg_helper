@@ -21,3 +21,18 @@ Images are linked, not stored in this repository.
 npm install
 npm run dev
 ```
+
+## AI analysis setup
+
+The API key never reaches the browser. It lives in a Supabase Edge Function:
+
+```bash
+supabase functions deploy analyze --no-verify-jwt
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-... ALLOWED_ORIGIN=https://quancel.github.io
+```
+
+Then add two repository variables (Settings → Secrets and variables → Actions → Variables):
+`VITE_ANALYZE_URL` (the function URL) and `VITE_SUPABASE_ANON_KEY` (the project's publishable key).
+
+The synergy engine (`src/lib/synergy.ts`) pre-filters up to 40 relevant cards and sends them
+in a one-line format, so a request stays at a few thousand tokens.

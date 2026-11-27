@@ -4,13 +4,14 @@ import { COLOR_LABEL, KIND_LABEL, emptyFilters, facets, filterCards, useCards, t
 import { useDeck } from './lib/deck'
 import { CardModal } from './components/CardModal'
 import { DeckPanel } from './components/DeckPanel'
+import { AnalysisPanel } from './components/AnalysisPanel'
 
 const PAGE = 120
 
 export default function App() {
   const { cards, error } = useCards()
   const { deck, setDeck, change } = useDeck()
-  const [tab, setTab] = useState<'cards' | 'deck'>('cards')
+  const [tab, setTab] = useState<'cards' | 'deck' | 'analysis'>('cards')
   const [filters, setFilters] = useState<Filters>(emptyFilters)
   const [shown, setShown] = useState(PAGE)
   const [open, setOpen] = useState<Card | null>(null)
@@ -31,13 +32,16 @@ export default function App() {
         <nav className="tabs" role="tablist">
           <button className="tab" role="tab" aria-selected={tab === 'cards'} onClick={() => setTab('cards')}>Karten</button>
           <button className="tab" role="tab" aria-selected={tab === 'deck'} onClick={() => setTab('deck')}>Deck ({deckSize})</button>
+          <button className="tab" role="tab" aria-selected={tab === 'analysis'} onClick={() => setTab('analysis')}>Analyse</button>
         </nav>
       </header>
 
       {error && <p className="empty">Kartendaten konnten nicht geladen werden: {error}</p>}
       {!cards && !error && <p className="empty">Lade Karten …</p>}
 
-      {cards && (
+      {cards && tab === 'analysis' && <AnalysisPanel cards={cards} deck={deck} byId={byId} onOpen={setOpen} />}
+
+      {cards && tab !== 'analysis' && (
         <div className={`layout ${tab === 'deck' ? '' : 'with-deck'}`}>
           {tab === 'cards' && (
             <section>
