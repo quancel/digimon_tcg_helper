@@ -9,10 +9,13 @@ jobs:
     steps:
       - run: |
           UA="digimon-alysion-helper (private deckbuilder)"
-          curl -s -A "$UA" https://alysion.gg/_astro/CardTooltip.astro_astro_type_script_index_0_lang.C2QYX4x9.js -o t.js; wc -c t.js
-          grep -o -E '"[^"]*\.json[^"]*"|fetch\([^)]{0,120}\)|/[a-z_/-]*tip[a-z_/-]*' t.js | sort -u | head -20
-          head -c 1500 t.js; echo
-          curl -s -A "$UA" https://alysion.gg/cards/bt1-010/agumon/ | python3 -c "
-          import sys; s=sys.stdin.read(); i=s.find('detail-art'); print(s[i:i+2500])"
-          curl -s -A "$UA" https://alysion.gg/cards/bd2-005/yukinamon/ | python3 -c "
-          import sys; s=sys.stdin.read(); i=s.find('detail-art'); print(s[i:i+3000])"
+          curl -s -A "$UA" https://alysion.gg/card-tips.json -o tips.json; wc -c tips.json
+          python3 -c "
+          import json; d=json.load(open('tips.json')); print(type(d).__name__, len(d)); ks=list(d)
+          print(ks[:5], ks[-5:])
+          for k in ['BD1-002','BD2-005','BT1-010','ST25-02','BD01-02']:
+            print(k, json.dumps(d.get(k), ensure_ascii=False))
+          import collections; print(collections.Counter(k.split('-')[0] for k in ks))"
+          curl -s -A "$UA" https://alysion.gg/cards/ -o list.html; wc -c list.html
+          python3 -c "
+          s=open('list.html',encoding='utf-8').read(); i=s.find('/cards/bd2-005/'); print(s[i-1500:i+700])"
