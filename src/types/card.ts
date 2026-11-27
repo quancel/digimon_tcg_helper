@@ -3,7 +3,7 @@
  * Filled by the import script (scripts/), source still to be decided.
  */
 export type CardColor = 'red' | 'blue' | 'yellow' | 'green' | 'black' | 'purple' | 'white'
-export type CardKind = 'digi-egg' | 'digimon' | 'tamer' | 'option'
+export type CardKind = 'digi-egg' | 'digimon' | 'tamer' | 'option' | 'digimon-option'
 
 export interface DigivolveCondition {
   color: CardColor
@@ -32,7 +32,9 @@ export interface Card {
   alysionExclusive: boolean
   released: boolean
   imageUrl: string // linked, not stored in the repo
-  rulings?: { q: string; a: string; date?: string }[]
+  altArts?: string[]
+  rulings?: { id: string; q: string; a: string; date?: string }[]
+  source: 'official' | 'alysion.gg'
 }
 
 /**
